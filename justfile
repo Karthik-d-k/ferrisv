@@ -12,6 +12,9 @@ kdir    := "../linux"
 rootfs  := "../jammy-server-cloudimg-riscv64-root"
 release := "jammy"
 image   := kdir / "arch/riscv/boot/Image"
+llvmdir := env('HOME') + "/tools/llvm-22.1.8-x86_64"
+llvm    := llvmdir + "/bin/"
+export LIBCLANG_PATH := llvmdir + "/lib"
 module     := "rust_hello"          # which module dir to act on; override: just module=NAME test
 
 # print the recipe list when you run a bare `just`
@@ -20,7 +23,7 @@ default:
 
 # build the selected module against the kernel tree (kbuild reads {{module}}/Kbuild)
 build:
-    make -C {{kdir}} M=$(pwd)/{{module}} ARCH=riscv LLVM=1
+    make -C {{kdir}} M=$(pwd)/{{module}} ARCH=riscv LLVM={{llvm}}
 
 # create the rootfs if missing, same curl|tar as vng's create_root
 _ensure-rootfs:

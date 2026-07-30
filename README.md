@@ -1,6 +1,7 @@
 # ferrisv 🦀
 
 Out-of-tree **Rust kernel modules for RISC-V**, cross-built with LLVM and run under **QEMU**.
+
 `just qemu` boots OpenSBI -> kernel -> init on an ext4 root and 9p-shares your module dir into the
 guest, so you `insmod`/`rmmod` and iterate without rebuilding the world.
 

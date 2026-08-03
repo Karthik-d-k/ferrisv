@@ -18,8 +18,11 @@ struct RustHello;
 
 impl kernel::Module for RustHello {
     fn init(_module: &'static ThisModule) -> Result<Self> {
+        let task = current!();
+
         pr_info!("ferrisv: rust_hello loaded on RISC-V\n");
         pr_info!("ferrisv: built-in? {}\n", !cfg!(MODULE));
+        pr_info!("Current process PID: {}\n", task.pid());
 
         Ok(RustHello)
     }

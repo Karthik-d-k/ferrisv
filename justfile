@@ -68,6 +68,11 @@ save-buildroot-config:
 rust-analyzer:
     make -C {{kdir}} ARCH=riscv LLVM={{llvm}} M=$(pwd)/{{module}} rust-analyzer
 
+# Generate Rust documentation
+rustdoc:
+    make -C {{kdir}} ARCH=riscv LLVM={{llvm}} rustdoc
+    @echo ">> open: {{kdir}}/Documentation/output/rust/rustdoc/kernel/index.html"
+
 # remove the selected module's build artifacts
 clean:
     make -C {{kdir}} M=$(pwd)/{{module}} clean

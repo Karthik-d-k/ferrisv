@@ -64,6 +64,10 @@ kernel:
 save-buildroot-config:
     make -C {{brdir}} savedefconfig BR2_DEFCONFIG={{brdefconfig}}
 
+# generate rust-project.json for rust-analyzer (module = the selected one)
+rust-analyzer:
+    make -C {{kdir}} ARCH=riscv LLVM={{llvm}} M=$(pwd)/{{module}} rust-analyzer
+
 # remove the selected module's build artifacts
 clean:
     make -C {{kdir}} M=$(pwd)/{{module}} clean

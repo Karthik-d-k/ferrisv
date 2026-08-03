@@ -17,3 +17,6 @@ rust-project.json
 # editor leftovers
 *.swp
 *~
+
+# vscode
+.vscode/

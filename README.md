@@ -23,7 +23,7 @@ ferrisv/
 ├── justfile                  # dev loop: buildroot / kernel / qemu
 ├── configs/                  # Buildroot defconfig
 ├── rust_hello/               # minimal module : start here
-└── rust_your_own_module/     # your own new module
+└── <new_module>/             # copy rust_hello/ and set `obj-m` in its Kbuild
 ```
 
 ## Setup
@@ -66,7 +66,7 @@ the cross-toolchain via `BR2_TOOLCHAIN_EXTERNAL_PATH`. Bump a pin later with
 
 ```bash
 just qemu                              # build rust_hello module + boot the full stack (auto-builds kernel/rootfs if missing)
-just module=rust_your_own_module qemu  # pick a different module
+just module=rust_hello qemu           # swap module= to build any module dir
 ```
 
 In the guest, mount the 9p share and load the module:

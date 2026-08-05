@@ -2,7 +2,7 @@
 
 //! ferrisv: a minimal out-of-tree Rust kernel module for RISC-V.
 //!
-//! Build, load, and unload it in a QEMU guest with:  just mod=rust_hello test
+//! Build: `just qemu`. In the guest: mount the 9p share, then `insmod .../rust_hello.ko`.
 
 use kernel::prelude::*;
 

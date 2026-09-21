@@ -9,8 +9,8 @@
 
 static int __init my_init(void) {
   pr_info("ferrisv: c_hello loaded on RISC-V\n");
-  // pr_info("ferrisv: built-in? {}\n",);
-  // pr_info("Current process PID: {}\n", task.pid());
+  pr_info("ferrisv: built-in? %d\n", IS_MODULE(CONFIG_HELLO));
+  pr_info("Current process PID: %d\n", current->pid);
 
   return 0;
 }

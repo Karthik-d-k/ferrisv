@@ -37,13 +37,13 @@ default:
 # full-system boot: OpenSBI -> kernel -> init on ext4; module dir 9p-shared at tag "mods"
 qemu: _build _buildroot
     # live loop: rebuild the .ko on the host; the running guest sees it via 9p (rmmod/insmod, no reboot)
-    @echo '>> in guest: mkdir -p /mnt/mods && mount -t 9p -o trans=virtio,version=9p2000.L mods /mnt/mods && insmod /mnt/mods/{{module}}.ko'
+    @echo '>> in guest: mkdir -p /mnt/mods && mount -t 9p -o trans=virtio,version=9p2000.L mods /mnt/mods && insmod /mnt/mods/<<module>>.ko'
     qemu-system-riscv64 -M virt -m 1G -smp 2 -nographic \
       -bios {{bios}} -kernel {{image}} \
       -append "root=/dev/vda rw console=ttyS0 earlycon" \
       -drive file={{ext4}},format=raw,snapshot=on,id=hd0,if=none \
       -device virtio-blk-device,drive=hd0 \
-      -fsdev local,id=fs0,path=$(pwd)/{{module}},security_model=none \
+      -fsdev local,id=fs0,path=$(pwd),security_model=none \
       -device virtio-9p-device,fsdev=fs0,mount_tag=mods
 
 # === (re)build a whole dependency: run explicitly to force it ==============

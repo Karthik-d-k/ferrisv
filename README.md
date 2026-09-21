@@ -2,7 +2,7 @@
 
 Out-of-tree **Linux kernel modules in C/Rust for RISC-V**, cross-built with **LLVM** and run under **QEMU**.
 
-`just qemu` boots OpenSBI -> kernel -> init on an ext4 root and 9p-shares your module dir into the
+`just qemu` boots OpenSBI -> kernel -> init on an ext4 root and 9p-shares the whole repo into the
 guest, so you `insmod`/`rmmod` and iterate without rebuilding the world.
 
 ## Layout
@@ -22,8 +22,9 @@ Each module is a self-contained dir with its own `Kbuild` (`obj-m := <name>.o`):
 ferrisv/
 ├── justfile                  # dev loop: buildroot / kernel / qemu
 ├── configs/                  # Buildroot defconfig
-├── rust_hello/               # minimal module : start here
-└── <new_module>/             # copy rust_hello/ and set `obj-m` in its Kbuild
+├── rust_hello/               # minimal Rust module : start here
+├── c_hello/                  # minimal C module
+└── <new_module>/             # copy rust_hello/c_hello/ and set `obj-m` in its Kbuild
 ```
 
 ## Setup
@@ -66,22 +67,33 @@ the cross-toolchain via `BR2_TOOLCHAIN_EXTERNAL_PATH`. Bump a pin later with
 
 ```bash
 just qemu                              # build rust_hello module + boot the full stack (auto-builds kernel/rootfs if missing)
-just module=rust_hello qemu           # swap module= to build any module dir
+just module=rust_hello qemu            # pick a module dir to build/boot
+just module=c_hello qemu               # e.g. the C module
 ```
 
-In the guest, mount the 9p share and load the module:
+In the guest, mount the 9p share (repo root) and load a module:
 
 ```sh
 mkdir -p /mnt/mods
 mount -t 9p -o trans=virtio,version=9p2000.L mods /mnt/mods
-insmod /mnt/mods/rust_hello.ko ; dmesg | tail   # load  (init) message
-rmmod rust_hello ; dmesg | tail                 # unload (Drop) message
+insmod /mnt/mods/rust_hello/rust_hello.ko ; dmesg | tail    # load  (init) message
+rmmod rust_hello ; dmesg | tail                             # unload (Drop) message
 ```
 
-**Fast loop:** keep the guest running and rebuild only the `.ko` on the host :
-`make -C ../linux M=$PWD/rust_hello ARCH=riscv LLVM=<llvm-bin>/`. The 9p share is live, so
+**Fast loop:** keep the guest running and rebuild only the selected module's `.ko` on the host:
+`make -C ../linux M=$PWD/<mod> ARCH=riscv LLVM=<llvm-bin>/`. The 9p share is live, so
 `rmmod … ; insmod …` in the guest picks it up in seconds, no reboot. (`snapshot=on` discards guest
 writes; exit QEMU with `Ctrl-a x`.)
+
+## Editor setup
+
+Shared `.vscode/settings.json` wires clangd (C) and rust-analyzer (Rust). Generated index files per
+module are gitignored:
+
+```bash
+just module=c_hello c-analyzer       # -> c_hello/compile_commands.json  (clangd, C)
+just module=rust_hello rust-analyzer # -> rust_hello/rust-project.json   (rust-analyzer, Rust)
+```
 
 ## Rebuilds
 
@@ -97,10 +109,10 @@ The kernel config is pure upstream: `make defconfig` + `make rust.config`.
 
 ## How it works
 
-The module borrows the kernel's kbuild (`make -C ../linux M=$PWD/<mod> ARCH=riscv LLVM=…`),
-cross-compiling against the Rust-enabled tree. The `.ko` reaches the guest over a 9p share and is
-`insmod`ed. QEMU supplies the board; `../linux` the `Image`; `../buildroot` the ext4 rootfs and
-OpenSBI (`fw_dynamic.bin`).
+C and Rust modules borrow the kernel's kbuild (`make -C ../linux M=$PWD/<mod> ARCH=riscv LLVM=…`),
+cross-compiling against the LLVM/Rust-enabled tree. The `.ko` files reach the guest over a 9p share
+and are `insmod`ed. QEMU supplies the board; `../linux` the `Image`; `../buildroot` the ext4 rootfs
+and OpenSBI (`fw_dynamic.bin`).
 
 ## License
 

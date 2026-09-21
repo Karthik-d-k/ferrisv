@@ -68,6 +68,10 @@ save-buildroot-config:
 rust-analyzer:
     make -C {{kdir}} ARCH=riscv LLVM={{llvm}} M=$(pwd)/{{module}} rust-analyzer
 
+# generate compile_commands.json for clangd (module = the selected one)
+c-analyzer:
+    make -C {{kdir}} ARCH=riscv LLVM={{llvm}} M=$(pwd)/{{module}} compile_commands.json
+
 # Generate Rust documentation
 rustdoc:
     make -C {{kdir}} ARCH=riscv LLVM={{llvm}} rustdoc

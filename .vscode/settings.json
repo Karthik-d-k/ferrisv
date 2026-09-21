@@ -1,0 +1,22 @@
+{
+  // `just module=c_hello c-analyzer`
+  // Point this at the one C module you're actively editing; clangd uses only one dir.
+  "clangd.path": "${env:HOME}/tools/clangd_22.1.6/bin/clangd",
+  "clangd.arguments": [
+    "--compile-commands-dir=${workspaceFolder}/c_hello",
+    "--background-index"
+  ],
+  // `just module=rust_hello rust-analyzer`
+  // Add one entry per Rust module.
+  "rust-analyzer.linkedProjects": [
+    "rust_hello/rust-project.json"
+  ],
+  "rust-analyzer.cargo.buildScripts.enable": false,
+  "rust-analyzer.checkOnSave": false,
+  "files.watcherExclude": {
+    "**/.git/**": true,
+    "**/*.o": true,
+    "**/*.ko": true,
+    "**/.tmp_*/**": true
+  }
+}
